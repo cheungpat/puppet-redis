@@ -99,18 +99,18 @@ class redis (
     default => $conf_logfile,
   }
 
-  package { 'redis':
+  package { $redis:
     ensure => $package_ensure,
     name   => $package,
   }
 
-  service { 'redis':
+  service { $redis:
     ensure     => $service_ensure,
     name       => $service,
     enable     => $service_enable,
     hasrestart => true,
     hasstatus  => true,
-    require    => Package['redis'],
+    require    => Package[$redis],
   }
 
   file { $conf_redis:
@@ -119,8 +119,8 @@ class redis (
     owner   => root,
     group   => root,
     mode    => '0644',
-    require => Package['redis'],
-    notify  => Service['redis'],
+    require => Package[$package],
+    notify  => Service[$service],
   }
 
   file { $conf_logrotate:
@@ -137,16 +137,16 @@ class redis (
     user    => root,
     group   => root,
     creates => $conf_dir,
-    before  => Service['redis'],
-    require => Package['redis'],
-    notify  => Service['redis'],
+    before  => Service[$service],
+    require => Package[$package],
+    notify  => Service[$service],
   }
 
   file { $conf_dir:
     ensure  => directory,
     owner   => redis,
     group   => redis,
-    before  => Service['redis'],
+    before  => Service[$service],
     require => Exec[$conf_dir],
   }
 
